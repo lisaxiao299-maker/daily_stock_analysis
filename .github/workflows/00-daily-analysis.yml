@@ -404,6 +404,29 @@ jobs:
           MARKET_REVIEW_COLOR_SCHEME: ${{ vars.MARKET_REVIEW_COLOR_SCHEME || secrets.MARKET_REVIEW_COLOR_SCHEME || 'green_up' }}
           
           # ==========================================
+          # 选股配置（默认关闭；需启用时在 Settings → Variables 添加 SCREENING_ENABLED=true）
+          # ==========================================
+          SCREENING_ENABLED: ${{ vars.SCREENING_ENABLED || secrets.SCREENING_ENABLED || 'false' }}
+          # 全市场快照源优先级（有 TUSHARE_TOKEN 时自动注入 tushare 为首选，否则留空用默认）
+          SNAPSHOT_SOURCE_PRIORITY: ${{ vars.SNAPSHOT_SOURCE_PRIORITY || secrets.SNAPSHOT_SOURCE_PRIORITY }}
+          # 选股第三方数据源调用超时护栏（专项值优先于全局 SCREENING_SOURCE_CALL_TIMEOUT_SEC）
+          SCREENING_SOURCE_CALL_TIMEOUT_SEC: ${{ vars.SCREENING_SOURCE_CALL_TIMEOUT_SEC || secrets.SCREENING_SOURCE_CALL_TIMEOUT_SEC }}
+          SCREENING_HOTSPOT_CALL_TIMEOUT_SEC: ${{ vars.SCREENING_HOTSPOT_CALL_TIMEOUT_SEC || secrets.SCREENING_HOTSPOT_CALL_TIMEOUT_SEC }}
+          SCREENING_HOTSPOT_SEARCH_TIMEOUT_SEC: ${{ vars.SCREENING_HOTSPOT_SEARCH_TIMEOUT_SEC || secrets.SCREENING_HOTSPOT_SEARCH_TIMEOUT_SEC }}
+          SCREENING_SNAPSHOT_CALL_TIMEOUT_SEC: ${{ vars.SCREENING_SNAPSHOT_CALL_TIMEOUT_SEC || secrets.SCREENING_SNAPSHOT_CALL_TIMEOUT_SEC }}
+          SCREENING_DAILY_CALL_TIMEOUT_SEC: ${{ vars.SCREENING_DAILY_CALL_TIMEOUT_SEC || secrets.SCREENING_DAILY_CALL_TIMEOUT_SEC }}
+          # 东财直连请求限速与随机抖动
+          SCREENING_EASTMONEY_MIN_INTERVAL_SEC: ${{ vars.SCREENING_EASTMONEY_MIN_INTERVAL_SEC || secrets.SCREENING_EASTMONEY_MIN_INTERVAL_SEC }}
+          SCREENING_EASTMONEY_JITTER_SEC: ${{ vars.SCREENING_EASTMONEY_JITTER_SEC || secrets.SCREENING_EASTMONEY_JITTER_SEC }}
+          # 选股数据目录与缓存（GitHub runner 每次全新环境，通常留空用默认 data/screening 即可）
+          SCREENING_DATA_DIR: ${{ vars.SCREENING_DATA_DIR || secrets.SCREENING_DATA_DIR }}
+          SCREENING_FALLBACK_SNAPSHOT_PATH: ${{ vars.SCREENING_FALLBACK_SNAPSHOT_PATH || secrets.SCREENING_FALLBACK_SNAPSHOT_PATH }}
+          SCREENING_SNAPSHOT_CACHE_TTL_SEC: ${{ vars.SCREENING_SNAPSHOT_CACHE_TTL_SEC || secrets.SCREENING_SNAPSHOT_CACHE_TTL_SEC }}
+          SCREENING_DAILY_HISTORY_CACHE_DIR: ${{ vars.SCREENING_DAILY_HISTORY_CACHE_DIR || secrets.SCREENING_DAILY_HISTORY_CACHE_DIR }}
+          SCREENING_INDUSTRY_PROVIDER_CACHE_DIR: ${{ vars.SCREENING_INDUSTRY_PROVIDER_CACHE_DIR || secrets.SCREENING_INDUSTRY_PROVIDER_CACHE_DIR }}
+          INDUSTRY_PROVIDER: ${{ vars.INDUSTRY_PROVIDER || secrets.INDUSTRY_PROVIDER }}
+          
+          # ==========================================
           # 运行配置 ⬅️ 新增！
           # ==========================================
           REPORT_TYPE: ${{ vars.REPORT_TYPE || secrets.REPORT_TYPE || 'simple' }}
@@ -461,6 +484,8 @@ jobs:
           echo "=========================================="
           echo "📋 配置检查"
           echo "=========================================="
+          echo "【选股配置】"
+          echo "  选股 Screening: $([ "${SCREENING_ENABLED:-false}" = "true" ] && echo '✅ 已启用' || echo '⏸️ 未启用（默认 false，可在 Variables 添加 SCREENING_ENABLED=true）')"
           echo "【AI 配置】"
           if [ -n "$LITELLM_CONFIG" ] || [ -n "$LITELLM_API_KEY" ] || [ -n "$LITELLM_MODEL" ] || [ -n "$ANSPIRE_API_KEYS" ]; then
             echo "  LiteLLM: ✅ 已配置"
