@@ -173,8 +173,9 @@ jobs:
           LLM_OPENAI_PROTOCOL: ${{ vars.LLM_OPENAI_PROTOCOL || secrets.LLM_OPENAI_PROTOCOL }}
           LLM_OPENAI_API_SURFACE: ${{ vars.LLM_OPENAI_API_SURFACE || secrets.LLM_OPENAI_API_SURFACE }}
           LLM_OPENAI_BASE_URL: ${{ vars.LLM_OPENAI_BASE_URL || secrets.LLM_OPENAI_BASE_URL }}
-          LLM_OPENAI_API_KEY: ${{ secrets.LLM_OPENAI_API_KEY }}
-          LLM_OPENAI_API_KEYS: ${{ secrets.LLM_OPENAI_API_KEYS }}
+          # OpenAI 渠道（LLM_CHANNELS=openai 时生效；Key 复用 legacy OPENAI_API_KEY）
+          LLM_OPENAI_API_KEY: ${{ secrets.LLM_OPENAI_API_KEY || secrets.OPENAI_API_KEY }}
+          LLM_OPENAI_API_KEYS: ${{ secrets.LLM_OPENAI_API_KEYS || secrets.OPENAI_API_KEYS }}
           LLM_OPENAI_MODELS: ${{ vars.LLM_OPENAI_MODELS || secrets.LLM_OPENAI_MODELS }}
           LLM_OPENAI_ENABLED: ${{ vars.LLM_OPENAI_ENABLED || secrets.LLM_OPENAI_ENABLED }}
           LLM_OPENAI_EXTRA_HEADERS: ${{ vars.LLM_OPENAI_EXTRA_HEADERS || secrets.LLM_OPENAI_EXTRA_HEADERS }}
