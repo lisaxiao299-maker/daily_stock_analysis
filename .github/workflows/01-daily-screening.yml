@@ -33,7 +33,6 @@ on:
         type: boolean
 
 # 并发控制：同一时间只运行一个选股任务
-def concurrency_group: null
 concurrency:
   group: stock-screening
   cancel-in-progress: false
