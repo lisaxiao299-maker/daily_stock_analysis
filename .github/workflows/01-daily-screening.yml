@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       strategies:
-        description: '选股策略（逗号分隔，留空使用 SCREENING_STRATEGIES 配置）'
+        description: '选股策略（逗号分隔，留空使用 SCREENING_STRATEGIES 配置；默认资金热度/缩量回调/放量突破）'
         required: false
         default: ''
         type: string
@@ -69,7 +69,7 @@ jobs:
           # 选股配置
           # ==========================================
           SCREENING_ENABLED: 'true'
-          SCREENING_STRATEGIES: ${{ vars.SCREENING_STRATEGIES || secrets.SCREENING_STRATEGIES || 'balanced_alpha' }}
+          SCREENING_STRATEGIES: ${{ vars.SCREENING_STRATEGIES || secrets.SCREENING_STRATEGIES || 'capital_heat,shrink_pullback,volume_breakout' }}
           SCREENING_MARKET: ${{ vars.SCREENING_MARKET || secrets.SCREENING_MARKET || 'cn' }}
           SCREENING_MAX_RESULTS: ${{ vars.SCREENING_MAX_RESULTS || secrets.SCREENING_MAX_RESULTS || '10' }}
           TRADING_DAY_CHECK_ENABLED: ${{ vars.TRADING_DAY_CHECK_ENABLED || secrets.TRADING_DAY_CHECK_ENABLED || 'true' }}
@@ -88,7 +88,9 @@ jobs:
           LITELLM_MODEL: ${{ vars.LITELLM_MODEL || secrets.LITELLM_MODEL }}
           LITELLM_FALLBACK_MODELS: ${{ vars.LITELLM_FALLBACK_MODELS || secrets.LITELLM_FALLBACK_MODELS }}
           LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE || secrets.LLM_TEMPERATURE }}
-          LLM_MAX_TOKENS: ${{ vars.LLM_MAX_TOKENS || secrets.LLM_MAX_TOKENS || '8192' }}
+          LLM_MAX_TOKENS: ${{ vars.LLM_MAX_TOKENS || secrets.LLM_MAX_TOKENS || '3000' }}
+          # 免费/共享 LLM 端点偶发 503，重试可显著提升排序成功率
+          LLM_MAX_RETRIES: ${{ vars.LLM_MAX_RETRIES || secrets.LLM_MAX_RETRIES || '3' }}
           LLM_CHANNELS: ${{ vars.LLM_CHANNELS || secrets.LLM_CHANNELS }}
 
           # Gemini AI
@@ -260,6 +262,16 @@ jobs:
           BRAVE_API_KEYS: ${{ secrets.BRAVE_API_KEYS }}
           SEARXNG_BASE_URLS: ${{ vars.SEARXNG_BASE_URLS || secrets.SEARXNG_BASE_URLS }}
           SEARXNG_PUBLIC_INSTANCES_ENABLED: ${{ vars.SEARXNG_PUBLIC_INSTANCES_ENABLED || secrets.SEARXNG_PUBLIC_INSTANCES_ENABLED }}
+
+          # ==========================================
+          # 选股引擎：行业/概念映射
+          # 不设置时 industry 字段为空，组合集中度惩罚（buckets/max_same_bucket）会直接跳过，
+          # 导致结果集中在同一板块（如全是银行股）。设为 akshare 由东财板块映射补齐行业字段。
+          # ==========================================
+          INDUSTRY_PROVIDER: ${{ vars.INDUSTRY_PROVIDER || secrets.INDUSTRY_PROVIDER || 'akshare' }}
+          INDUSTRY_PROVIDER_MAX_BOARDS: ${{ vars.INDUSTRY_PROVIDER_MAX_BOARDS || secrets.INDUSTRY_PROVIDER_MAX_BOARDS }}
+          INDUSTRY_MAP_FILES: ${{ vars.INDUSTRY_MAP_FILES || secrets.INDUSTRY_MAP_FILES }}
+          SCREENING_INDUSTRY_PROVIDER_CACHE_DIR: ${{ vars.SCREENING_INDUSTRY_PROVIDER_CACHE_DIR || secrets.SCREENING_INDUSTRY_PROVIDER_CACHE_DIR }}
 
           # ==========================================
           # 通知渠道（选股报告推送；未配置的渠道自动跳过）

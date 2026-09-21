@@ -83,6 +83,10 @@ jobs:
           OPENAI_VISION_MODEL: ${{ vars.OPENAI_VISION_MODEL || secrets.OPENAI_VISION_MODEL }}
           VISION_PROVIDER_PRIORITY: ${{ vars.VISION_PROVIDER_PRIORITY || secrets.VISION_PROVIDER_PRIORITY }}
           LLM_TEMPERATURE: ${{ vars.LLM_TEMPERATURE || secrets.LLM_TEMPERATURE }}
+          # 单次生成最大 token；推理模型思考会占用额度，过小会导致空响应
+          LLM_MAX_TOKENS: ${{ vars.LLM_MAX_TOKENS || secrets.LLM_MAX_TOKENS || '3000' }}
+          # LLM 调用重试次数；免费/共享端点偶发 503，重试可显著提升成功率
+          LLM_MAX_RETRIES: ${{ vars.LLM_MAX_RETRIES || secrets.LLM_MAX_RETRIES || '3' }}
           LLM_USAGE_HMAC_SECRET: ${{ secrets.LLM_USAGE_HMAC_SECRET }}
           LLM_USAGE_HMAC_KEY_VERSION: ${{ vars.LLM_USAGE_HMAC_KEY_VERSION || secrets.LLM_USAGE_HMAC_KEY_VERSION }}
           LLM_PROMPT_CACHE_TELEMETRY_ENABLED: ${{ vars.LLM_PROMPT_CACHE_TELEMETRY_ENABLED || secrets.LLM_PROMPT_CACHE_TELEMETRY_ENABLED }}
