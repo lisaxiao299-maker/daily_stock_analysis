@@ -269,7 +269,7 @@ jobs:
           # 导致结果集中在同一板块（如全是银行股）。设为 akshare 由东财板块映射补齐行业字段。
           # ==========================================
           INDUSTRY_PROVIDER: ${{ vars.INDUSTRY_PROVIDER || secrets.INDUSTRY_PROVIDER || 'akshare' }}
-          INDUSTRY_PROVIDER_MAX_BOARDS: ${{ vars.INDUSTRY_PROVIDER_MAX_BOARDS || secrets.INDUSTRY_PROVIDER_MAX_BOARDS }}
+          INDUSTRY_PROVIDER_MAX_BOARDS: ${{ vars.INDUSTRY_PROVIDER_MAX_BOARDS || secrets.INDUSTRY_PROVIDER_MAX_BOARDS || '80' }}
           INDUSTRY_MAP_FILES: ${{ vars.INDUSTRY_MAP_FILES || secrets.INDUSTRY_MAP_FILES }}
           SCREENING_INDUSTRY_PROVIDER_CACHE_DIR: ${{ vars.SCREENING_INDUSTRY_PROVIDER_CACHE_DIR || secrets.SCREENING_INDUSTRY_PROVIDER_CACHE_DIR }}
 
