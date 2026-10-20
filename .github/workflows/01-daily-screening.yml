@@ -40,7 +40,9 @@ concurrency:
 jobs:
   screening:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 30 分钟对数据源偶发挂起太紧（历史上多次在 30:00 被取消、报告一张没出）；
+    # 放宽到 60 分钟，配合 akshare 单次调用 30s 超时，避免整轮白跑。
+    timeout-minutes: 60
 
     steps:
       - name: 随机延迟（避免固定时间访问）
@@ -65,6 +67,8 @@ jobs:
 
       - name: 执行自动选股
         env:
+          # 用于「定时触发去重」步骤查询本仓库的运行记录
+          GH_TOKEN: ${{ github.token }}
           # ==========================================
           # 选股配置
           # ==========================================
@@ -301,6 +305,19 @@ jobs:
           MAX_WORKERS: ${{ vars.MAX_WORKERS || secrets.MAX_WORKERS || '1' }}
 
         run: |
+          # 定时触发去重：本机 cron 会在工作日 19:05 主动 dispatch；GitHub 自带的 schedule
+          # 经常延迟数小时，若 18 小时内已有成功/进行中的运行则跳过，避免一天推送两份报告。
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            CUTOFF=$(date -u -d '18 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+            DUP=$(gh api "repos/${{ github.repository }}/actions/workflows/01-daily-screening.yml/runs?per_page=50" \
+              --jq "[.workflow_runs[] | select(.id != ${{ github.run_id }} and .created_at >= \"$CUTOFF\" and ((.status == \"queued\") or (.status == \"in_progress\") or (.status == \"waiting\") or (.conclusion == \"success\")))] | length")
+            echo "🔎 18 小时内已成功/进行中的其它运行: ${DUP}"
+            if [ "${DUP:-0}" -gt 0 ]; then
+              echo "⏭️ 今天已有运行覆盖，跳过本次定时任务（避免重复推送）"
+              exit 0
+            fi
+          fi
+
           # 处理 LITELLM YAML 配置文件（与每日分析工作流一致）
           if [ -n "$LITELLM_CONFIG_YAML" ] && [ -n "$LITELLM_CONFIG" ]; then
             mkdir -p "$(dirname "$LITELLM_CONFIG")"
