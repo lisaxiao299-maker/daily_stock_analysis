@@ -546,12 +546,15 @@ class AkshareFetcher(BaseFetcher):
             import time as _time
             api_start = _time.time()
 
-            df = ak.stock_zh_a_hist(
+            df = _akshare_call_with_timeout(
+                ak.stock_zh_a_hist,
                 symbol=stock_code,
                 period="daily",
                 start_date=start_date.replace('-', ''),
                 end_date=end_date.replace('-', ''),
-                adjust="qfq"
+                adjust="qfq",
+                timeout=self._history_call_timeout,
+                call_name="ak.stock_zh_a_hist",
             )
 
             api_elapsed = _time.time() - api_start
