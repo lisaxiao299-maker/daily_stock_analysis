@@ -310,7 +310,7 @@ jobs:
           if [ "${{ github.event_name }}" = "schedule" ]; then
             CUTOFF=$(date -u -d '18 hours ago' +%Y-%m-%dT%H:%M:%SZ)
             DUP=$(gh api "repos/${{ github.repository }}/actions/workflows/01-daily-screening.yml/runs?per_page=50" \
-              --jq "[.workflow_runs[] | select(.id != ${{ github.run_id }} and .created_at >= \"$CUTOFF\" and ((.status == \"queued\") or (.status == \"in_progress\") or (.status == \"waiting\") or (.conclusion == \"success\")))] | length")
+              --jq "[.workflow_runs[] | select(.id != ${{ github.run_id }} and .created_at >= \"$CUTOFF\" and ((.status == \"queued\") or (.status == \"in_progress\") or (.status == \"waiting\") or (.conclusion == \"success\")))] | length" 2>/dev/null || echo 0)
             echo "🔎 18 小时内已成功/进行中的其它运行: ${DUP}"
             if [ "${DUP:-0}" -gt 0 ]; then
               echo "⏭️ 今天已有运行覆盖，跳过本次定时任务（避免重复推送）"
